@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 
 public class PelotaScript : MonoBehaviour
@@ -24,6 +24,7 @@ public class PelotaScript : MonoBehaviour
     [SerializeField]
     private Rigidbody2D lineaGolIzquierda;
     private int milisStart;
+    private bool esFreezeGol = false;
     private void Awake()
     {
         rigidbody2D = GetComponent<Rigidbody2D>();
@@ -32,7 +33,10 @@ public class PelotaScript : MonoBehaviour
     }
     private void decideSaque()
     {
-        direccionSaqueX = (Environment.TickCount % 2) == 0;
+        decideSaque((Environment.TickCount % 2) == 0);
+    }
+    private void decideSaque(bool direccionSaqueX)
+    {
         direccionSaqueY = Environment.TickCount % 5;
         //Existen 2 delimitadores para el valor de velocidadY. Dividimos la porteria en 5 partes, donde la primera y la ultima son los extremos de la misma y el saque debe dirigirse entre ellas
         // Y == 1 Es la esquina superior y Y== 0 es la esquina inferior.
@@ -59,22 +63,31 @@ public class PelotaScript : MonoBehaviour
                 break;
         }
     }
+    private void realizaSaque()
+    {
+        
+        milisStart = Environment.TickCount;
+        rigidbody2D.velocity = new Vector2(velocidadX, velocidadY) * Settings.velocidadMovimientoPelota;
+    }
     // Start is called before the first frame update
     void Start()
     {
         decideSaque();
-        milisStart = Environment.TickCount;
-        rigidbody2D.velocity = new Vector2(velocidadX, velocidadY) * Settings.velocidadMovimientoPelota;
+        realizaSaque();
     }
 
     private void aplicaVelocidadPelota()
     {
-        if (rigidbody2D.velocity.x > 0)
+        if (!esFreezeGol)
         {
-            rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x + Settings.aceleracionLinealPelota, rigidbody2D.velocity.y);
-        }else
-        {
-            rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x - Settings.aceleracionLinealPelota, rigidbody2D.velocity.y);
+            if (rigidbody2D.velocity.x > 0)
+            {
+                rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x + Settings.aceleracionLinealPelota, rigidbody2D.velocity.y);
+            }
+            else
+            {
+                rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x - Settings.aceleracionLinealPelota, rigidbody2D.velocity.y);
+            }
         }
     }
     // Update is called once per frame
@@ -84,8 +97,20 @@ public class PelotaScript : MonoBehaviour
         {
             rigidbody2D.position = posicionInicial;
             decideSaque();
+            realizaSaque();
         }
         
+    }
+    private IEnumerator rutinaGol(bool esGolIzquierda)
+    {
+        EventHandler.CallGolEvent(esGolIzquierda);
+        rigidbody2D.position = posicionInicial;
+        rigidbody2D.velocity = new Vector2(0, 0);
+        esFreezeGol = true;
+        yield return new WaitForSeconds(4f);
+        decideSaque(esGolIzquierda);
+        realizaSaque();
+        esFreezeGol = false;
     }
 
     private void FixedUpdate()
@@ -148,10 +173,10 @@ public class PelotaScript : MonoBehaviour
         }
         if (lineaGolDerecha.gameObject.name == col.gameObject.name)
         {
-            EventHandler.CallGolEvent(false);
+            StartCoroutine(rutinaGol(false));
         }else if (lineaGolIzquierda.gameObject.name == col.gameObject.name)
         {
-            EventHandler.CallGolEvent(true);
+            StartCoroutine(rutinaGol(true));
         }
     }
 
