@@ -6,7 +6,7 @@ using UnityEngine;
 public class IAScript : MonoBehaviour
 {
     [SerializeField]
-    private Rigidbody2D rigidBody2DPelota;
+    private Rigidbody2D rigidBody2DPelota = null;
     private float yInput = 0f;
     private float yInputAnterior= 0f;
     private new Rigidbody2D rigidbody2D;

@@ -8,4 +8,6 @@ public class Settings
     public const float velocidadMovimientoPelota = 4f;
     public const float aceleracionLinealPlayer = 1.05f;
     public const float aceleracionLinealPelota = 0.2f;
+
+    public const string Escena1 = "Escena1";
 }

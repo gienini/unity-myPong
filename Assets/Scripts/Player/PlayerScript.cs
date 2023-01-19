@@ -9,8 +9,8 @@ public class PlayerScript : MonoBehaviour
     private float yInputAnterior= 0f;
     private new Rigidbody2D rigidbody2D;
     private float velocidadMovimientoLocal = Settings.velocidadMovimientoPlayer;
-    private bool esDireccionArriba = true;
     private int milis;
+    [SerializeField] private bool esPlayerIzquierda = false;
     private void Awake()
     {
         rigidbody2D = GetComponent<Rigidbody2D>();
@@ -18,12 +18,22 @@ public class PlayerScript : MonoBehaviour
 
     private void Update()
     {
-        if (yInput != Input.GetAxisRaw("Vertical"))
+        
+        if (esPlayerIzquierda && (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.S)))
         {
             milis = Environment.TickCount;
+            yInput = Input.GetKey(KeyCode.W) ? 1f : -1f;
         }
-        yInput = Input.GetAxisRaw("Vertical");
-        
+        else if (!esPlayerIzquierda && (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.DownArrow)))
+        {
+            milis = Environment.TickCount;
+            yInput = Input.GetKey(KeyCode.UpArrow) ? 1f : -1f;
+        }else
+        {
+            yInput = 0f;
+        }
+
+
     }
     private void FixedUpdate()
     {

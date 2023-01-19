@@ -14,4 +14,23 @@ public class EventHandler
             GolEvent(esGolIzquierda);
         }
     }
+
+    public static event Action<bool, bool, bool> EmpezarJuegoEvent;
+
+    public static void CallEmpezarJuegoEvent(bool esPrimeraOpcion, bool esSegundaOpcion, bool esTerceraOpcion)
+    {
+        if (EmpezarJuegoEvent != null)
+        {
+            EmpezarJuegoEvent(esPrimeraOpcion, esSegundaOpcion, esTerceraOpcion);
+        }
+    }
+
+    public static event Action MainMenuEvent;
+    public static void CallMainMenuEvent()
+    {
+        if (MainMenuEvent != null)
+        {
+            MainMenuEvent();
+        }
+    }
 }

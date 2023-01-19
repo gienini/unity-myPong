@@ -12,17 +12,13 @@ public class PelotaScript : MonoBehaviour
     private float velocidadY;
     private Vector2 posicionInicial;
     [SerializeField]
-    private Rigidbody2D bodyIzquierda;
+    private Rigidbody2D bodyIzquierda = null;
     [SerializeField]
-    private BoxCollider2D boxCollider2DIzquierda;
+    private Rigidbody2D bodyDerecha = null;
     [SerializeField]
-    private Rigidbody2D bodyDerecha;
+    private Rigidbody2D lineaGolDerecha = null;
     [SerializeField]
-    private BoxCollider2D boxCollider2DDerecha;
-    [SerializeField]
-    private Rigidbody2D lineaGolDerecha;
-    [SerializeField]
-    private Rigidbody2D lineaGolIzquierda;
+    private Rigidbody2D lineaGolIzquierda = null;
     private int milisStart;
     private bool esFreezeGol = false;
     private void Awake()
@@ -30,6 +26,16 @@ public class PelotaScript : MonoBehaviour
         rigidbody2D = GetComponent<Rigidbody2D>();
         posicionInicial = rigidbody2D.position;
         
+    }
+    private void OnEnable()
+    {
+        EventHandler.EmpezarJuegoEvent += EmpiezaPartido;
+        EventHandler.MainMenuEvent += MenuPrincipal;
+    }
+    private void OnDisable()
+    {
+        EventHandler.EmpezarJuegoEvent -= EmpiezaPartido;
+        EventHandler.MainMenuEvent -= MenuPrincipal;
     }
     private void decideSaque()
     {
@@ -70,11 +76,11 @@ public class PelotaScript : MonoBehaviour
         rigidbody2D.velocity = new Vector2(velocidadX, velocidadY) * Settings.velocidadMovimientoPelota;
     }
     // Start is called before the first frame update
-    void Start()
-    {
-        decideSaque();
-        realizaSaque();
-    }
+    //void Start()
+    //{
+    //    decideSaque();
+    //    realizaSaque();
+    //}
 
     private void aplicaVelocidadPelota()
     {
@@ -143,7 +149,7 @@ public class PelotaScript : MonoBehaviour
         //   col.collider is the racket's collider
 
         // Hit the left Racket?
-        if (bodyIzquierda.gameObject.name == col.gameObject.name)
+        if (bodyIzquierda != null && bodyIzquierda.gameObject.name == col.gameObject.name)
         {
             // Calculate hit Factor
             float y = hitFactor(transform.position,
@@ -158,7 +164,7 @@ public class PelotaScript : MonoBehaviour
         }
 
         // Hit the right Racket?
-        if (bodyDerecha.gameObject.name == col.gameObject.name)
+        if (bodyDerecha != null && bodyDerecha.gameObject.name == col.gameObject.name)
         {
             // Calculate hit Factor
             float y = hitFactor(transform.position,
@@ -178,6 +184,20 @@ public class PelotaScript : MonoBehaviour
         {
             StartCoroutine(rutinaGol(true));
         }
+    }
+    private void EmpiezaPartido(bool esPrimeraOpcion, bool esSegundaOpcion, bool esTerceraOpcion)
+    {
+        esFreezeGol = false;
+        rigidbody2D.position = posicionInicial;
+        decideSaque();
+        realizaSaque();
+    }
+
+    private void MenuPrincipal()
+    {
+        esFreezeGol = true;
+        rigidbody2D.position = posicionInicial;
+        rigidbody2D.velocity = new Vector2(0, 0);
     }
 
 }
